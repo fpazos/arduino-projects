@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "Led controller"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"new": "cpp"
+		}
+	}
+}
