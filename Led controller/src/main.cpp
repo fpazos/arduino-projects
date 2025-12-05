@@ -31,9 +31,12 @@ struct Speed {
   int8_t auxSpeed;
 };
 
-Speed currenSpeed = {1, 0};
+Speed currentSpeed = {1, 0};
 
 uint8_t minBrightness = 10;
+bool pulseDirection = true;
+int8_t pulseSpeed = 5;
+bool pulse = false;
 // Current Brightness and aux values for functions
 struct Brightness {
   uint8_t currentBrightness;
@@ -41,8 +44,7 @@ struct Brightness {
   bool brightnessEffectBool;
 };
 
-Brightness currentBrightness = {256, 0, false};
-
+Brightness currentBrightness = {64, 0, false};
 
 // Tipos de blend
 TBlendType currentBlending;
@@ -72,10 +74,10 @@ struct Speed backAndForthAnimation(struct Speed);
 struct Speed mirrorAnimation(struct Speed);
 
 // Brightness functions
-struct brightness staticEffect(struct brightness);
-struct brightness pulseEffect(struct brightness);
-struct brightness fireEffect(struct brightness);
-struct brightness flashEffect(struct brightness);
+struct Brightness staticEffect(struct Brightness);
+struct Brightness pulseEffect(struct Brightness);
+struct Brightness fireEffect(struct Brightness);
+struct Brightness flashEffect(struct Brightness);
 
 
 void setup() {
@@ -111,9 +113,12 @@ void loop() {
   // Functions calls
 
   static uint8_t startIndex = 0;
-  startIndex = startIndex + speed.animationSpeed; /* motion speed */
+  startIndex = startIndex + currentSpeed.animationSpeed; /* motion speed */
   
-  FillLEDsFromPaletteColors( startIndex, brightnessUse);
+  // Update LED colors from palette
+  for( int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = ColorFromPalette( currentPalette, startIndex + (i * 256 / NUM_LEDS), currentBrightness.currentBrightness, currentBlending);
+  }
   
   FastLED.show();
   FastLED.delay(1000 / UPDATES_PER_SECOND);
@@ -132,6 +137,7 @@ void SetupTotallyRandomPalette()
 // sixteen CRGB colors, the various fill_* functions can be used
 // to set them up.
 void SetupRosaVioleta()
+
 {
     // 'black out' all 16 palette entries...
     fill_solid( currentPalette, 16, CRGB::Pink);
@@ -201,20 +207,21 @@ const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM =
 };
 
 // Pulse mode brightness effect
-void pulseEffect(brightness){
+struct Brightness pulseEffect(struct Brightness brightness){
   // Pulse mode
   if (pulse == true){
-      if (brightnessUse >= 250){
+      if (brightness.currentBrightness >= 250){
           pulseDirection = false;
       }
-      if (brightnessUse <= minBrightness){
+      if (brightness.currentBrightness <= minBrightness){
           pulseDirection = true;
       }
       if(pulseDirection == true){
-          brightnessUse = brightnessUse + pulseSpeed;
+          brightness.currentBrightness = brightness.currentBrightness + pulseSpeed;
       }
       if(pulseDirection == false) {
-          brightnessUse = brightnessUse - pulseSpeed;
+          brightness.currentBrightness = brightness.currentBrightness - pulseSpeed;
       }
   }
+  return brightness;
 }
