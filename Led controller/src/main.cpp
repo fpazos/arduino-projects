@@ -4,7 +4,7 @@
 // FASTLED DEFINITIONS
 // Leds definitions
 #define LED_PIN     6
-#define NUM_LEDS    30
+#define NUM_LEDS    34
 #define BRIGHTNESS  64
 #define LED_TYPE    WS2811
 #define COLOR_ORDER GRB
@@ -121,8 +121,8 @@ void setup() {
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip ); // pylance: ignore
   FastLED.setBrightness(  BRIGHTNESS );
 
-  Serial.begin(9600); //This pipes to the serial monitor
-  Serial1.begin(9600); //This is the UART, pipes to sensors attached to board
+  // Serial.begin(9600); //This pipes to the serial monitor
+  // Serial1.begin(9600); //This is the UART, pipes to sensors attached to board
 
   FastLED.clear();
 }
@@ -133,10 +133,10 @@ void loop() {
   // If cycle duration = 0 set new cycle functions, reset cycle durations, if it isn't rest 1
   if (cycleDuration == 0){
     cycleFunctions[0] = random(0, 3);
-    cycleFunctions[1] = random(0, 8);
+    cycleFunctions[1] = random(0, 7);
     cycleFunctions[2] = random(0, 2);
     cycleFunctions[3] = random(0, 3);
-    cycleDuration = random(1000, 5000);
+    cycleDuration = random(500, 2000);
 
     currentBlending = blendOptions[random(0, 2)];
 
@@ -150,7 +150,7 @@ void loop() {
     }
 
     /* SERIAL INFORMATION */
-    Serial.println("New cycle:");
+    /* Serial.println("New cycle:");
     Serial.print(" Color combination function: ");
     Serial.println(cycleFunctions[0]);
     Serial.print(" Fill function: ");
@@ -180,7 +180,7 @@ void loop() {
     Serial.print(", ");
     Serial.print(currentCombination[2].g);
     Serial.print(", ");
-    Serial.println(currentCombination[2].b);
+    Serial.println(currentCombination[2].b); */
 
 
     // Selects current fill function
@@ -205,9 +205,9 @@ void loop() {
         break;
       case 6:
         randFill(currentCombination[0], currentCombination[1], currentCombination[2]);
-        break;
+        break;/* 
       case 7:
-        break;
+        break; */
     }
   } else {
     cycleDuration--;
@@ -246,10 +246,11 @@ void loop() {
       break;
   }
 
-  if (cycleDuration < 10){
+  // Serial information starting index
+  /* if (cycleDuration < 10){
     Serial.print("Start index: ");
     Serial.println(currentAnimation.startIndex);
-  }
+  } */
 
 
   // Functions calls
@@ -389,7 +390,7 @@ void randFill(CRGB color1, CRGB color2, CRGB color3) {
 */
 void randomPredefinedFill() {
   CRGBPalette16 predefinedPalettes[8] = { RainbowColors_p, RainbowStripeColors_p, OceanColors_p, CloudColors_p, LavaColors_p, ForestColors_p, PartyColors_p, HeatColors_p };
-  currentPalette = predefinedPalettes[random(8)];
+  currentPalette = predefinedPalettes[random(0, 8)];
 }
 
 
@@ -457,12 +458,13 @@ Animation backAndForthAnimation(Animation currentAnimation){
   } else {
     currentAnimation.startIndex = currentAnimation.startIndex - currentAnimation.animationSpeed;
   }
-  if (cycleDuration < 10){
+  // Serial animation debugging
+  /* if (cycleDuration < 10){
     Serial.print("Going forward: ");
     Serial.println(goingForward);
     Serial.print("auxAnimation: ");
     Serial.println(currentAnimation.auxAnimation);
-  }
+  } */
   return currentAnimation;
 }
 
@@ -491,16 +493,15 @@ void staticEffect(){
 */
 void pulseEffect(){
   if (currentBrightness.brightness >= 250){
-      currentBrightness.brightnessEffectBool = false;
-  }
-  if (currentBrightness.brightness <= minBrightness){
-      currentBrightness.brightnessEffectBool = true;
+    currentBrightness.brightnessEffectBool = false;
+  } else if (currentBrightness.brightness <= minBrightness){
+    currentBrightness.brightnessEffectBool = true;
   }
   if(currentBrightness.brightnessEffectBool == true){
-      currentBrightness.brightness = currentBrightness.brightness + currentBrightness.auxBrightness;
+    currentBrightness.brightness = currentBrightness.brightness + currentBrightness.auxBrightness;
   }
   if(currentBrightness.brightnessEffectBool == false) {
-      currentBrightness.brightness = currentBrightness.brightness - currentBrightness.auxBrightness;
+    currentBrightness.brightness = currentBrightness.brightness - currentBrightness.auxBrightness;
   }
 }
 
